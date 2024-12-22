@@ -1,7 +1,3 @@
-Certainly! Here's the complete README.md content in a format you can copy and paste directly into your .readme file:
-
-markdown
-Copy code
 # Puto Order Management System
 
 A web-based order management system developed for small family businesses, specifically designed to handle customer orders efficiently. Built using **Next.js**, this system helps manage orders, track payment statuses, and organize customer details with ease, using **IndexedDB** and **Service Workers** for local storage.
