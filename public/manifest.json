@@ -1,0 +1,23 @@
+{
+    "name": "Puto Order",
+    "short_name": "Shop Admin",
+    "description": "Manage orders efficiently",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#FCE18E",
+    "theme_color": "#53B7D2",
+    "icons": [
+      {
+        "src": "/icon-192x192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "/icon-512x512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ]
+  }
+  
+  
