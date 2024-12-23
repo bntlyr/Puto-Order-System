@@ -1,28 +1,13 @@
-import withPWA from 'next-pwa';
-import { NextConfig } from 'next';
+/** @type {import('next').NextConfig} */
 
-const config: NextConfig = {
-  reactStrictMode: true,
-  experimental: {
-    turbo: {
-      rules: {
-        '*.js': [
-          {
-            loader: 'babel-loader',
-            options: { presets: ['@babel/preset-env'] },
-          },
-        ],
-      },
-    },
-  },
-};
 
-const nextConfig = withPWA({
-  dest: 'public',
-  disable: process.env.NODE_ENV === 'development',
-  register: true,
-  skipWaiting: true,
-  buildExcludes: [/middleware-manifest.json$/],
-})(config);
+const withPWA = require("next-pwa")
 
-export default nextConfig;
+const nextConfig={
+  ...withPWA({
+    dest:'public',
+    register:true ,
+    skipWaiting:true,
+  })
+}
+ module.exports = nextConfig
