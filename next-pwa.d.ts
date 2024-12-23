@@ -6,11 +6,11 @@ declare module 'next-pwa' {
       disable?: boolean
       register?: boolean
       skipWaiting?: boolean
+      buildExcludes?: RegExp[] // Add buildExcludes here
     }
   
     function withPWA(config: PWAConfig): (nextConfig: NextConfig) => NextConfig
   
     export = withPWA
   }
-  
   

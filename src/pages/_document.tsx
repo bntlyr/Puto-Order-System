@@ -7,6 +7,7 @@ class MyDocument extends Document {
     return (
       <Html lang="en">
         <Head>
+          <link rel="manifest" href="/manifest.json" />
           <meta name="application-name" content="Puto Order" />
           <meta name="apple-mobile-web-app-capable" content="yes" />
           <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -26,10 +27,11 @@ class MyDocument extends Document {
 
           <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon512_rounded.png" />
           <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon512_rounded.png" />
-          <link rel="manifest" href="/manifest.json" />
+          
           {/* <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#53B7D2" /> */}
           <link rel="shortcut icon" href="/favicon.ico" />
-          <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" />
+          <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=optional" />
+
 
           <meta name="twitter:card" content="summary" />
           <meta name="twitter:url" content="https://puto-order-system.vercel.app/" />
