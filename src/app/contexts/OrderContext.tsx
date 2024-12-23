@@ -95,8 +95,8 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (order) {
       const updatedOrder = {
         ...order,
-        orderStatus: order.fulfillmentMode === 'Delivery' ? 'Delivered' as 'Delivered' : 'Picked-up' as 'Picked-up'
-      };
+        orderStatus: order.fulfillmentMode === 'Delivery' ? 'Delivered' as const : 'Picked-up' as const,
+      };      
       await db.saveOrder(updatedOrder);
       setOrders(orders.map(o => o.id === id ? updatedOrder : o));
     }

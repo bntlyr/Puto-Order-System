@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect} from 'react';
 import { useOrders, Item } from '../contexts/OrderContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,6 +23,7 @@ export default function Items() {
     description: '',
   });
   const [dialogOpen, setDialogOpen] = useState(false); // Manage dialog open state
+  const [isClient, setIsClient] = useState(false);
 
   const handleAddItem = () => {
     if (newItem.name && newItem.price > 0) {
@@ -33,6 +34,15 @@ export default function Items() {
       alert('Please provide a valid name and price.');
     }
   };
+
+  
+  useEffect(() => {
+    setIsClient(true); // Ensures this component renders only on the client
+  }, []);
+
+  if (!isClient) {
+    return null; // Prevent rendering on the server
+  }
 
   return (
     <div className="container mx-auto p-4 pb-20">
@@ -78,7 +88,7 @@ export default function Items() {
                 value={newItem.price === 0 ? '' : newItem.price}
                 onChange={(e) => {
                   const value = e.target.value;
-                  setNewItem({
+                  setNewItem({                                              
                     ...newItem,
                     price: value === '' ? 0 : parseFloat(value),
                   });

@@ -2,9 +2,22 @@
 
 import { useOrders } from './contexts/OrderContext'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useEffect, useState } from 'react'
 
 export default function Home() {
+  const [isClient, setIsClient] = useState(false)
+
+  // Always call the hook outside of the conditional block
   const { orders } = useOrders()
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  // Ensure that the component only renders when it's on the client-side
+  if (!isClient) {
+    return null // Prevent rendering on the server
+  }
 
   const pendingPayments = orders.filter(order => order.paymentStatus === 'Unpaid').length
   const upcomingDeliveries = orders.filter(order => order.orderStatus === 'Pending' && order.fulfillmentMode === 'Delivery').length
@@ -60,4 +73,3 @@ export default function Home() {
     </div>
   )
 }
-
