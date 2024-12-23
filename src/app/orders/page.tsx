@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useOrders, Order, OrderItem } from '../contexts/OrderContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -25,8 +25,8 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { ChevronDown, ChevronUp } from 'lucide-react'
 
 export default function Orders() {
-  const { orders, items, addOrder, deleteOrder, markAsComplete, updateOrder } = useOrders()
-  const [filter, setFilter] = useState({ status: 'all', payment: 'all', fulfillment: 'all' })
+  const { orders, items, addOrder, deleteOrder, updateOrder } = useOrders()
+  const [filter, setFilter] = useState({ status: 'all', payment: 'all' })
   const [newOrder, setNewOrder] = useState<Omit<Order, 'id' | 'orderDate'>>({
     customerName: '',
     contact: '',
@@ -43,11 +43,14 @@ export default function Orders() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null)
 
-  const filteredOrders = orders.filter(order => 
-    (filter.status === 'all' || order.orderStatus === filter.status) &&
-    (filter.payment === 'all' || order.paymentStatus === filter.payment) &&
-    (filter.fulfillment === 'all' || order.fulfillmentMode === filter.fulfillment)
-  )
+  const filteredOrders = useMemo(() => {
+    return orders.filter(order => 
+      (filter.status === 'all' || 
+       (filter.status === 'completed' && order.orderStatus !== 'Pending') ||
+       (filter.status === 'pending' && order.orderStatus === 'Pending')) &&
+      (filter.payment === 'all' || order.paymentStatus === filter.payment)
+    )
+  }, [orders, filter])
 
   const handleAddOrder = () => {
     const orderItems = Array.from(selectedItems).map(([itemId, quantity]) => {
@@ -84,7 +87,6 @@ export default function Orders() {
       return updated;
     });
   };
-  
 
   const handleItemSelection = (itemId: string, isChecked: boolean) => {
     if (isChecked) {
@@ -100,26 +102,23 @@ export default function Orders() {
     setExpandedOrderId(expandedOrderId === orderId ? null : orderId)
   }
 
-  const undoMarkAsComplete = (orderId: string) => {
-    // Revert the order's status back to its original state before it was marked as completed
+  const handleToggleComplete = (orderId: string) => {
     const order = orders.find(o => o.id === orderId);
     if (order) {
-      updateOrder(orderId, { orderStatus: 'Pending' }); // or the previous status
+      const newStatus = order.orderStatus === 'Pending' 
+        ? (order.fulfillmentMode === 'Delivery' ? 'Delivered' : 'Picked-up')
+        : 'Pending';
+      updateOrder(orderId, { orderStatus: newStatus });
     }
   };
-  
-  const undoMarkAsPaid = (orderId: string) => {
-    // Revert the payment status back to its original state before it was marked as paid
-    const order = orders.find(o => o.id === orderId);
-    if (order) {
-      updateOrder(orderId, { paymentStatus: 'Unpaid' }); // or the previous status
-    }
-  };
-  
 
-  const handleMarkAsPaid = (orderId: string) => {
-    updateOrder(orderId, { paymentStatus: 'Paid' })
-  }
+  const handleTogglePaid = (orderId: string) => {
+    const order = orders.find(o => o.id === orderId);
+    if (order) {
+      const newPaymentStatus = order.paymentStatus === 'Paid' ? 'Unpaid' : 'Paid';
+      updateOrder(orderId, { paymentStatus: newPaymentStatus });
+    }
+  };
 
   return (
     <div className="container mx-auto p-4 pb-20">
@@ -135,7 +134,7 @@ export default function Orders() {
           Add New Order
         </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add New Order</DialogTitle>
           </DialogHeader>
@@ -192,26 +191,33 @@ export default function Orders() {
                 className="col-span-3"
               />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label>Items</Label>
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label className="text-right pt-2">Items</Label>
               <div className="col-span-3 space-y-2">
                 {items.map(item => (
-                  <div key={item.id} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`item-${item.id}`}
-                      checked={selectedItems.has(item.id)}
-                      onCheckedChange={(checked) => handleItemSelection(item.id, checked as boolean)}
-                    />
-                    <label htmlFor={`item-${item.id}`} className="text-sm font-medium leading-none">
-                      {item.name} - ₱{item.price.toFixed(2)}
-                    </label>
-                    <Input
-                      type="number"
-                      min="1"
-                      value={selectedItems.get(item.id) || ""} 
-                      onChange={(e) => handleItemQuantityChange(item.id, e.target.value ? parseInt(e.target.value) : 1)}  
-                      className="w-16"
-                    />
+                  <div key={item.id} className="flex items-center justify-between gap-2 pb-2 border-b">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`item-${item.id}`}
+                        checked={selectedItems.has(item.id)}
+                        onCheckedChange={(checked) => handleItemSelection(item.id, checked as boolean)}
+                      />
+                      <label htmlFor={`item-${item.id}`} className="text-sm font-medium leading-none">
+                        {item.name} - ₱{item.price.toFixed(2)}
+                      </label>
+                    </div>
+                    <div className="flex items-center">
+                      <Label htmlFor={`quantity-${item.id}`} className="sr-only">Quantity</Label>
+                      <Input
+                        id={`quantity-${item.id}`}
+                        type="number"
+                        min="0"
+                        value={selectedItems.get(item.id) || ''}
+                        onChange={(e) => handleItemQuantityChange(item.id, e.target.value === '' ? null : parseInt(e.target.value))}
+                        className="w-16 h-8 text-sm"
+                        placeholder="Qty"
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
@@ -253,7 +259,7 @@ export default function Orders() {
 
       <div className="mb-6">
         <h2 className="text-2xl font-bold mb-2">Filters</h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Select
             value={filter.status}
             onValueChange={(value) => setFilter({ ...filter, status: value })}
@@ -263,9 +269,8 @@ export default function Orders() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Statuses</SelectItem>
-              <SelectItem value="Pending">Pending</SelectItem>
-              <SelectItem value="Delivered">Delivered</SelectItem>
-              <SelectItem value="Picked-up">Picked-up</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
             </SelectContent>
           </Select>
           <Select
@@ -279,19 +284,6 @@ export default function Orders() {
               <SelectItem value="all">All Payments</SelectItem>
               <SelectItem value="Paid">Paid</SelectItem>
               <SelectItem value="Unpaid">Unpaid</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select
-            value={filter.fulfillment}
-            onValueChange={(value) => setFilter({ ...filter, fulfillment: value })}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Filter by fulfillment" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Fulfillments</SelectItem>
-              <SelectItem value="Delivery">Delivery</SelectItem>
-              <SelectItem value="Pickup">Pickup</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -322,7 +314,7 @@ export default function Orders() {
               </div>
             </CardHeader>
             {expandedOrderId === order.id && (
-              <CardContent className="p-4 bg-gray-50">
+              <CardContent className="p-4 bg-gray-50 space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p><strong>Contact:</strong> {order.contact}</p>
@@ -344,14 +336,24 @@ export default function Orders() {
                     ))}
                   </ul>
                 </div>
-                <div className="mt-4 space-x-2">
-                  <Button onClick={() => markAsComplete(order.id)} disabled={order.orderStatus !== 'Pending'}>
-                    Mark as Complete
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <Button 
+                    onClick={() => handleToggleComplete(order.id)}
+                    className="flex-1 min-w-[120px] sm:flex-none"
+                  >
+                    {order.orderStatus === 'Pending' ? 'Mark as Complete' : 'Undo Complete'}
                   </Button>
-                  <Button onClick={() => handleMarkAsPaid(order.id)} disabled={order.paymentStatus === 'Paid'}>
-                    Mark as Paid
+                  <Button 
+                    onClick={() => handleTogglePaid(order.id)}
+                    className="flex-1 min-w-[120px] sm:flex-none"
+                  >
+                    {order.paymentStatus === 'Unpaid' ? 'Mark as Paid' : 'Undo Paid'}
                   </Button>
-                  <Button onClick={() => deleteOrder(order.id)} variant="destructive">
+                  <Button 
+                    onClick={() => deleteOrder(order.id)} 
+                    variant="destructive"
+                    className="flex-1 min-w-[120px] sm:flex-none"
+                  >
                     Delete
                   </Button>
                 </div>
