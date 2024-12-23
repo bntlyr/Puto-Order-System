@@ -8,7 +8,8 @@ const BottomNav = () => {
   const pathname = usePathname()
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 pb-[env(safe-area-inset-bottom)] sm:pb-4"> 
+      {/* Added pb-[env(safe-area-inset-bottom)] for iOS, and sm:pb-4 for Android or wider screens */}
       <div className="flex justify-around items-center h-16">
         <Link 
           href="/" 
@@ -43,4 +44,3 @@ const BottomNav = () => {
 }
 
 export default BottomNav
-
