@@ -1,36 +1,89 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Puto Order Management System
 
-## Getting Started
+A web-based order management system developed for small family businesses, specifically designed to handle customer orders efficiently. Built using **Next.js**, this system helps manage orders, track payment statuses, and organize customer details with ease, using **IndexedDB** and **Service Workers** for local storage.
 
-First, run the development server:
+## Features
 
-```bash
+- **Customer Management**: Add, update, and manage customer details including name, contact, and location.
+- **Order Management**: Add new orders, select items, specify quantities, and calculate total amounts.
+- **Order Status Tracking**: Track order statuses including Pending, Delivered, and Picked-up.
+- **Payment Tracking**: Mark orders as Paid or Unpaid, with an option to revert the status.
+- **Dynamic Filters**: Filter orders based on status, payment, and fulfillment method (Delivery/Pickup).
+- **Item Selection**: Easily select products from a list, manage item quantities, and calculate the total order amount.
+- **Dialog-Based UI**: Modal dialogs for adding new orders and managing existing ones.
+- **User Interface**: User-friendly design with an intuitive and responsive layout.
+
+## Tech Stack
+
+- **Frontend**: Next.js, React, Tailwind CSS
+- **Storage**: IndexedDB for local storage, Service Workers for caching
+- **State Management**: React Context API
+- **UI Components**: Tailwind CSS components, Dialogs, Buttons, and Inputs
+
+## Installation
+
+To get started with the development of the Puto Order Management System, follow these steps:
+
+### Prerequisites
+
+Ensure that you have **Node.js** and **npm** installed on your machine.
+
+- [Node.js Download](https://nodejs.org/)
+- [npm](https://www.npmjs.com/) (comes installed with Node.js)
+
+### Steps
+
+1. **Clone the repository**:
+
+   ```bash
+   git clone https://github.com/your-username/puto-order-management.git
+Install dependencies:
+
+Navigate to the project directory and run:
+
+bash
+Copy code
+npm install
+Run the development server:
+
+After installing the dependencies, you can start the app locally:
+
+bash
+Copy code
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Your app will be live at http://localhost:3000.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Service Worker Setup:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Service Workers are used for caching and enabling offline functionality. When you run the app, the service worker will automatically handle caching and background sync.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Usage
+Once the app is running, navigate to the dashboard. You can:
 
-## Learn More
+Add new orders by clicking the "Add New Order" button.
+Update order statuses and payment statuses.
+Filter orders by their fulfillment method, payment status, and order status.
+Manage items and quantities in each order.
+Storage and Offline Functionality
+IndexedDB is used to store orders and customer data locally on the user's device. This allows the app to function offline or in environments with intermittent internet connectivity.
+Service Workers ensure that the app's assets (such as images, CSS, JavaScript) are cached for offline use. The app will continue to function smoothly even when there is no active internet connection.
+Deployment
+This app can be deployed on various platforms. A popular choice for Next.js apps is Vercel, which seamlessly integrates with Next.js.
 
-To learn more about Next.js, take a look at the following resources:
+To deploy on Vercel:
+Push your code to a GitHub repository.
+Sign in to Vercel and click on "New Project."
+Connect your GitHub repository and follow the deployment steps.
+Vercel will automatically deploy your project and provide a live URL for production.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Contributing
+We welcome contributions! If you'd like to improve this project, please fork the repository, create a feature branch, and submit a pull request with your proposed changes.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+License
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Acknowledgments
+Next.js for the React framework.
+IndexedDB for local storage.
+Service Workers for caching and offline functionality.
+Tailwind CSS for the modern CSS utility framework.
