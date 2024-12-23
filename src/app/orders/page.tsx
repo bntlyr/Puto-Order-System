@@ -214,30 +214,61 @@ export default function Orders() {
                         min="0"
                         value={selectedItems.get(item.id) || ''}
                         onChange={(e) => handleItemQuantityChange(item.id, e.target.value === '' ? null : parseInt(e.target.value))}
+                        className="w-16 h-8 text-sm"
+                        placeholder="Qty"
                       />
                     </div>
                   </div>
                 ))}
               </div>
             </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="paymentStatus" className="text-right">Payment Status</Label>
+              <Select
+                value={newOrder.paymentStatus}
+                onValueChange={(value) => setNewOrder({ ...newOrder, paymentStatus: value as 'Paid' | 'Unpaid' })}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select payment status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Paid">Paid</SelectItem>
+                  <SelectItem value="Unpaid">Unpaid</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="paymentMethod" className="text-right">Payment Method</Label>
+              <Select
+                value={newOrder.paymentMethod}
+                onValueChange={(value) => setNewOrder({ ...newOrder, paymentMethod: value as 'Cash' | 'GCash' })}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select payment method" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Cash">Cash</SelectItem>
+                  <SelectItem value="GCash">GCash</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div className="flex justify-end">
-            <Button onClick={handleAddOrder}>Add Order</Button>
-          </div>
+          <Button onClick={handleAddOrder}>Add Order</Button>
         </DialogContent>
       </Dialog>
 
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex space-x-2">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold mb-2">Filters</h2>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Select
             value={filter.status}
             onValueChange={(value) => setFilter({ ...filter, status: value })}
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Orders</SelectItem>
+              <SelectItem value="all">All Statuses</SelectItem>
               <SelectItem value="pending">Pending</SelectItem>
               <SelectItem value="completed">Completed</SelectItem>
             </SelectContent>
@@ -246,7 +277,7 @@ export default function Orders() {
             value={filter.payment}
             onValueChange={(value) => setFilter({ ...filter, payment: value })}
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue placeholder="Filter by payment" />
             </SelectTrigger>
             <SelectContent>
@@ -258,53 +289,81 @@ export default function Orders() {
         </div>
       </div>
 
-      {filteredOrders.map(order => (
-        <Card key={order.id} className="mb-4">
-          <CardHeader
-            className="flex justify-between items-center cursor-pointer"
-            onClick={() => toggleOrderExpansion(order.id)}
-          >
-            <CardTitle>{order.customerName}</CardTitle>
-            {expandedOrderId === order.id ? <ChevronUp /> : <ChevronDown />}
-          </CardHeader>
-          {expandedOrderId === order.id && (
-            <CardContent>
-              <div>
-                <p>Contact: {order.contact}</p>
-                <p>Location: {order.location}</p>
-                <p>Fulfillment Mode: {order.fulfillmentMode}</p>
-                <p>Delivery Date: {order.deliveryDate}</p>
-                <p>Order Status: {order.orderStatus}</p>
-                <p>Payment Status: {order.paymentStatus}</p>
-                <p>Payment Method: {order.paymentMethod}</p>
-                <p>Total Amount: ₱{order.totalAmount.toFixed(2)}</p>
-                <p>Items:</p>
-                <ul>
-                  {order.items.map((item, index) => (
-                    <li key={index}>{item.item.name} x {item.quantity} - ₱{(item.item.price * item.quantity).toFixed(2)}</li>
-                  ))}
-                </ul>
-                <div className="flex space-x-2 mt-4">
-                  <Button onClick={() => handleToggleComplete(order.id)}>
-                    Mark as {order.orderStatus === 'Pending' ? 'Completed' : 'Pending'}
-                  </Button>
-                  <Button onClick={() => handleTogglePaid(order.id)}>
-                    Mark as {order.paymentStatus === 'Paid' ? 'Unpaid' : 'Paid'}
-                  </Button>
-                  <Button variant="destructive" onClick={() => deleteOrder(order.id)}>
-                    Delete Order
-                  </Button>
+      <div className="space-y-4">
+        {filteredOrders.map(order => (
+          <Card key={order.id} className="overflow-hidden">
+            <CardHeader 
+              className="cursor-pointer flex flex-col p-4"
+              onClick={() => toggleOrderExpansion(order.id)}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className={`w-3 h-3 rounded-full ${order.orderStatus !== 'Pending' ? 'bg-green-500' : 'bg-gray-300'}`} />
+                  <CardTitle className="text-lg">{order.customerName}</CardTitle>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="font-bold">₱{order.totalAmount.toFixed(2)}</span>
+                  {expandedOrderId === order.id ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                 </div>
               </div>
-            </CardContent>
-          )}
-        </Card>
-      ))}
-
-      <FloatingActionButton
-        onClick={() => setIsDialogOpen(true)}
-        aria-label="Add Order"
-      />
+              <div className="mt-2 text-sm text-gray-500">
+                {new Date(order.deliveryDate).toLocaleDateString()} | {order.fulfillmentMode}
+              </div>
+              <div className={`mt-1 text-sm ${order.paymentStatus === 'Paid' ? 'text-green-600' : 'text-red-600'}`}>
+                {order.paymentStatus}
+              </div>
+            </CardHeader>
+            {expandedOrderId === order.id && (
+              <CardContent className="p-4 bg-gray-50 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p><strong>Contact:</strong> {order.contact}</p>
+                    <p><strong>Location:</strong> {order.location}</p>
+                    <p><strong>Order Date:</strong> {new Date(order.orderDate).toLocaleDateString()}</p>
+                  </div>
+                  <div>
+                    <p><strong>Order Status:</strong> {order.orderStatus}</p>
+                    <p><strong>Payment Method:</strong> {order.paymentMethod}</p>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <strong>Items:</strong>
+                  <ul className="list-disc pl-5 mt-2">
+                    {order.items.map((item, index) => (
+                      <li key={index}>
+                        {item.item.name} - {item.quantity} x ₱{item.item.price.toFixed(2)}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <Button 
+                    onClick={() => handleToggleComplete(order.id)}
+                    className="flex-1 min-w-[120px] sm:flex-none"
+                  >
+                    {order.orderStatus === 'Pending' ? 'Mark Complete' : 'Undo Complete'}
+                  </Button>
+                  <Button 
+                    onClick={() => handleTogglePaid(order.id)}
+                    className="flex-1 min-w-[120px] sm:flex-none"
+                  >
+                    {order.paymentStatus === 'Unpaid' ? 'Mark as Paid' : 'Undo Paid'}
+                  </Button>
+                  <Button 
+                    onClick={() => deleteOrder(order.id)} 
+                    variant="destructive"
+                    className="flex-1 min-w-[120px] sm:flex-none"
+                  >
+                    Delete
+                  </Button>
+                </div>
+              </CardContent>
+            )}
+          </Card>
+        ))}
+      </div>
+      <FloatingActionButton onClick={() => setIsDialogOpen(true)} />
     </div>
   )
 }
+
