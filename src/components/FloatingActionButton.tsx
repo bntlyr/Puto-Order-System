@@ -36,7 +36,7 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({ onClick }) 
   return (
     <button
       onClick={handleClick}
-      className="fixed right-4 bottom-20 w-12 h-12 bg-[#53B7D2] rounded-full shadow-lg flex items-center justify-center text-white hover:bg-[#53B7D2]/90 transition-colors"
+      className="fixed right-4 bottom-24 w-12 h-12 bg-[#53B7D2] rounded-full shadow-lg flex items-center justify-center text-white hover:bg-[#53B7D2]/90 transition-colors"
     >
       <Plus className="w-6 h-6" />
     </button>
